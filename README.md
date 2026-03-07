@@ -1,5 +1,7 @@
 # Azure Project - Enterprise Infrastructure
 
+Phase-1 
+
 ## Overview
 Terraform-based Azure infrastructure following enterprise best practices:
 Hub-Spoke networking, private subnets, NSGs, Key Vault, and NAT Gateway.
@@ -24,4 +26,5 @@ terraform apply -var-file="environments/dev/dev.tfvars"
 ```bash
 terraform destroy -var-file="environments/dev/dev.tfvars"
 ```
+
 
