@@ -27,4 +27,6 @@ terraform apply -var-file="environments/dev/dev.tfvars"
 terraform destroy -var-file="environments/dev/dev.tfvars"
 ```
 
+![Image](https://github.com/user-attachments/assets/6ab18aa3-ba21-46e4-955b-716562a4f15b)
+
 
