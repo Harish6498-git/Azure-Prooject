@@ -3,6 +3,7 @@
 Phase-1 Foundation (Networking + Security)
 
 Resource Groups — Separate resource groups for Hub, Spoke, and Security following enterprise RBAC isolation patterns.
+
 Hub-Spoke VNet Topology — Hub VNet (10.0.0.0/16) with firewall, gateway, management, and bastion subnets. Spoke VNet (10.1.0.0/16) with frontend, backend, database, and app gateway subnets. Bidirectional VNet peering connects them.
 Private Subnets — All application subnets have default outbound access disabled. No VM can reach the internet directly — outbound traffic goes through the NAT Gateway only.
 Network Security Groups — Least-privilege inbound rules per tier. Frontend only accepts HTTP/HTTPS from App Gateway. Backend only accepts port 8000 from Frontend. Database only accepts port 1433 from Backend. SSH restricted to management subnet only.
