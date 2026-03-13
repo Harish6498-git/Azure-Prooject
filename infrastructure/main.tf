@@ -18,7 +18,10 @@ provider "azurerm" {
 
 data "azurerm_client_config" "current" {}
 
-# ---- Resource Groups ----
+# ============================================================================
+# Phase 1: Foundation
+# ============================================================================
+
 resource "azurerm_resource_group" "hub" {
   name     = "${var.project_name}-hub-${var.environment}-rg"
   location = var.location
@@ -37,7 +40,6 @@ resource "azurerm_resource_group" "security" {
   tags     = local.common_tags
 }
 
-# ---- Networking Module ----
 module "networking" {
   source               = "./modules/networking"
   project_name         = var.project_name
@@ -52,7 +54,6 @@ module "networking" {
   tags = local.common_tags
 }
 
-# ---- Security Module ----
 module "security" {
   source              = "./modules/security"
   project_name        = var.project_name
@@ -65,7 +66,6 @@ module "security" {
   tags = local.common_tags
 }
 
-# ---- Key Vault Module ----
 module "keyvault" {
   source              = "./modules/keyvault"
   project_name        = var.project_name
@@ -76,5 +76,46 @@ module "keyvault" {
   object_id           = data.azurerm_client_config.current.object_id
   spoke_vnet_id       = module.networking.spoke_vnet_id
   db_subnet_id        = module.networking.spoke_subnet_ids["database"]
+  tags = local.common_tags
+}
+
+# ============================================================================
+# Phase 2: Compute + Database + Application Gateway
+# ============================================================================
+
+module "database" {
+  source              = "./modules/database"
+  project_name        = var.project_name
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = azurerm_resource_group.spoke.name
+  db_subnet_id        = module.networking.spoke_subnet_ids["database"]
+  spoke_vnet_id       = module.networking.spoke_vnet_id
+  db_user             = var.db_user
+  db_pass             = var.db_pass
+  tags = local.common_tags
+}
+
+module "compute" {
+  source              = "./modules/compute"
+  project_name        = var.project_name
+  environment         = var.environment
+  location            = var.location
+  resource_group_name = azurerm_resource_group.spoke.name
+  frontend_subnet_id  = module.networking.spoke_subnet_ids["frontend"]
+  backend_subnet_id   = module.networking.spoke_subnet_ids["backend"]
+  vm_size             = var.vm_size
+  ssh_public_key      = var.ssh_public_key
+  tags = local.common_tags
+}
+
+module "appgateway" {
+  source               = "./modules/appgateway"
+  project_name         = var.project_name
+  environment          = var.environment
+  location             = var.location
+  resource_group_name  = azurerm_resource_group.spoke.name
+  appgw_subnet_id      = module.networking.spoke_subnet_ids["appgateway"]
+  frontend_private_ip  = module.compute.frontend_private_ip
   tags = local.common_tags
 }

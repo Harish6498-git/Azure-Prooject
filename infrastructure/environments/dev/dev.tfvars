@@ -1,3 +1,6 @@
 project_name = "secureapp"
 environment  = "dev"
 location     = "westus2"
+vm_size      = "Standard_D2als_v7"
+db_user      = "sqladmin"
+db_pass      = "ChangeMe!SecureP@ss2026"

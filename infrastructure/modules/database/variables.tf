@@ -1,0 +1,9 @@
+variable "project_name" { type = string }
+variable "environment" { type = string }
+variable "location" { type = string }
+variable "resource_group_name" { type = string }
+variable "db_subnet_id" { type = string }
+variable "spoke_vnet_id" { type = string }
+variable "db_user" { type = string }
+variable "db_pass" { type = string }
+variable "tags" { type = map(string) }
