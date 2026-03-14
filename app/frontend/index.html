@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureApp - Task Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Segoe UI, Arial, sans-serif; background: #0f1923; color: #e8edf2; min-height: 100vh; }
+        .container { max-width: 700px; margin: 0 auto; padding: 40px 20px; }
+        h1 { text-align: center; margin-bottom: 8px; font-size: 28px; color: #5dade2; }
+        .subtitle { text-align: center; color: #7a9bb5; margin-bottom: 30px; font-size: 14px; }
+        .add-form { display: flex; gap: 10px; margin-bottom: 30px; }
+        .add-form input { flex: 1; padding: 12px 16px; border: 1px solid #2d4a6f; border-radius: 8px; background: #1a2d42; color: #e8edf2; font-size: 15px; outline: none; }
+        .add-form input:focus { border-color: #5dade2; }
+        .add-form button { padding: 12px 24px; background: #2ecc71; color: #fff; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: 600; }
+        .add-form button:hover { background: #27ae60; }
+        .task-list { list-style: none; }
+        .task-item { display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: #1a2d42; border: 1px solid #2d4a6f; border-radius: 8px; margin-bottom: 10px; }
+        .task-item.completed .task-title { text-decoration: line-through; color: #7a9bb5; }
+        .task-check { width: 22px; height: 22px; cursor: pointer; accent-color: #2ecc71; }
+        .task-title { flex: 1; font-size: 15px; }
+        .task-desc { color: #7a9bb5; font-size: 12px; }
+        .task-delete { background: none; border: none; color: #e74c3c; cursor: pointer; font-size: 18px; padding: 4px 8px; border-radius: 4px; }
+        .task-delete:hover { background: rgba(231,76,60,0.1); }
+        .stats { text-align: center; color: #7a9bb5; margin-top: 20px; font-size: 13px; }
+        .empty { text-align: center; color: #7a9bb5; padding: 40px; }
+        .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 11px; background: #2d4a6f; color: #5dade2; margin-left: 8px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SecureApp Task Manager</h1>
+        <p class="subtitle">Enterprise-grade 3-tier Azure application</p>
+        <div class="add-form">
+            <input type="text" id="taskTitle" placeholder="Task title...">
+            <input type="text" id="taskDesc" placeholder="Description (optional)">
+            <button onclick="addTask()">Add Task</button>
+        </div>
+        <ul class="task-list" id="taskList"></ul>
+        <div class="stats" id="stats"></div>
+    </div>
+    <script>
+        const API = "/api/todos";
+        async function loadTasks() {
+            try {
+                const res = await fetch(API);
+                const tasks = await res.json();
+                const list = document.getElementById("taskList");
+                const stats = document.getElementById("stats");
+                if (tasks.length === 0) { list.innerHTML = "<div class=empty>No tasks yet. Add one above!</div>"; stats.innerHTML = ""; return; }
+                list.innerHTML = tasks.map(t => "<li class=\"task-item " + (t.completed ? "completed" : "") + "\"><input type=checkbox class=task-check " + (t.completed ? "checked" : "") + " onchange=\"toggleTask(" + t.id + ", this.checked)\"><div><div class=task-title>" + t.title + "</div>" + (t.description ? "<div class=task-desc>" + t.description + "</div>" : "") + "</div><span class=badge>" + (t.completed ? "Done" : "Pending") + "</span><button class=task-delete onclick=\"deleteTask(" + t.id + ")\">X</button></li>").join("");
+                const done = tasks.filter(t => t.completed).length;
+                stats.innerHTML = done + " of " + tasks.length + " tasks completed";
+            } catch (e) { console.error("Failed:", e); }
+        }
+        async function addTask() {
+            const title = document.getElementById("taskTitle").value.trim();
+            const desc = document.getElementById("taskDesc").value.trim();
+            if (!title) return;
+            await fetch(API, { method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify({title: title, description: desc || null}) });
+            document.getElementById("taskTitle").value = "";
+            document.getElementById("taskDesc").value = "";
+            loadTasks();
+        }
+        async function toggleTask(id, completed) { await fetch(API + "/" + id, { method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({completed: completed}) }); loadTasks(); }
+        async function deleteTask(id) { await fetch(API + "/" + id, { method: "DELETE" }); loadTasks(); }
+        document.getElementById("taskTitle").addEventListener("keypress", function(e) { if (e.key === "Enter") addTask(); });
+        loadTasks();
+    </script>
+</body>
+</html>
