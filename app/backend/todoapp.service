@@ -6,7 +6,7 @@ After=network.target
 Type=simple
 User=azureuser
 WorkingDirectory=/home/azureuser/todoapp
-ExecStart=/home/azureuser/todoapp/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+ExecStart=/home/azureuser/Azure-Prooject/app/backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
 Restart=always
 RestartSec=3
 
