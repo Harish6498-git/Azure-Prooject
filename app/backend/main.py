@@ -5,10 +5,10 @@ import pyodbc, os
 
 app = FastAPI(title="SecureApp To-Do API", version="1.0")
 
-DB_SERVER = os.getenv("DB_SERVER", "${db_server}")
-DB_NAME = os.getenv("DB_NAME", "${db_name}")
-DB_USER = os.getenv("DB_USER", "${db_user}")
-DB_PASS = os.getenv("DB_PASS", "${db_pass}")
+DB_SERVER = os.getenv("DB_SERVER", "secureapp-dev-sqlserver.database.windows.net")
+DB_NAME = os.getenv("DB_NAME", "secureapp-tododb")
+DB_USER = os.getenv("DB_USER", "sqladmin")
+DB_PASS = os.getenv("DB_PASS", "ChangeMe!SecureP@ss2026")
 
 def get_db():
     return pyodbc.connect(
